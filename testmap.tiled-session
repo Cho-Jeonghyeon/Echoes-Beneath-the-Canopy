@@ -1,0 +1,41 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "test_map.json",
+    "expandedProjectPaths": [
+    ],
+    "fileStates": {
+        "test_map.json": {
+            "scale": 0.5,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 575,
+                "y": 430
+            }
+        },
+        "test_map.json#mossy_tileset": {
+            "scaleInDock": 0.5
+        },
+        "test_map.json#tileset": {
+            "scaleInDock": 0.5
+        }
+    },
+    "last.imagePath": "C:/Users/titan/Desktop/Echoes-Beneath-the-Canopy/images",
+    "map.height": 28,
+    "map.lastUsedFormat": "json",
+    "map.width": 44,
+    "openFiles": [
+        "test_map.json"
+    ],
+    "project": "testmap.tiled-project",
+    "recentFiles": [
+        "test_map.json"
+    ],
+    "tileset.embedInMap": true,
+    "tileset.tileSize": {
+        "height": 64,
+        "width": 64
+    }
+}
