@@ -1,5 +1,6 @@
 from pico2d import *
 import game_framework
+import game_mode
 import game_world
 import game_data as gd
 import math
@@ -212,7 +213,7 @@ def handle_events():
         elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
             game_framework.quit()
         elif event.type == SDL_KEYDOWN and event.key == SDLK_SPACE:
-            pass
+            game_framework.change_mode(game_mode)
 
 def pause():
     pass
