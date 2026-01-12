@@ -1,0 +1,55 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "lils.json",
+    "expandedProjectPaths": [
+    ],
+    "fileStates": {
+        "#outside_tileset": {
+            "scaleInDock": 1
+        },
+        "lils.json": {
+            "scale": 0.75,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 728,
+                "y": 428
+            }
+        },
+        "lils.json#outside_tileset": {
+            "scaleInDock": 1
+        },
+        "real_map.json": {
+            "scale": 1.5,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 92.66666666666669,
+                "y": 736.6666666666665
+            }
+        },
+        "real_map.json#outside_tileset": {
+            "scaleInDock": 1.5
+        }
+    },
+    "last.imagePath": "C:/Users/titan/Desktop/Echoes-Beneath-the-Canopy/map/FREE UPDATE V1/FREE UPDATE V1/TILESETS",
+    "map.height": 57,
+    "map.lastUsedFormat": "json",
+    "map.tileHeight": 16,
+    "map.tileWidth": 16,
+    "map.width": 88,
+    "openFiles": [
+        "lils.json"
+    ],
+    "project": "real_map.tiled-project",
+    "recentFiles": [
+        "lils.json",
+        "real_map.json"
+    ],
+    "tileset.embedInMap": true,
+    "tileset.tileSize": {
+        "height": 16,
+        "width": 16
+    }
+}
