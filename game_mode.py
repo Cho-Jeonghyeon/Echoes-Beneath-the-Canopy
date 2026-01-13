@@ -17,7 +17,7 @@ def init():
         load_image('images/outside_background_02.png'),
         load_image('images/outside_background_03.png')  # 가장 앞 배경
     ]
-    tile_map = TileMap('map/lils.json')
+    tile_map = TileMap('map/real_map.json')
     # tile_map = TileMap('map/real_map.json')
     player = Player(tile_map)
 
