@@ -391,8 +391,8 @@ class Player:
         half_w = (self.frame_w * DRAW_SCALE) / 2
         half_h = (self.frame_h * DRAW_SCALE) / 2
 
-        left = self.x - half_w
-        right = self.x + half_w
+        left = self.x - half_w+5
+        right = self.x + half_w-5
         bottom = self.y - half_h
         top = self.y + half_h
 
@@ -432,59 +432,99 @@ class Player:
     # =====================
     def update(self):
 
+        dt = game_framework.frame_time
         self.state_machine.update()
 
         if self.xdir != 0 and self.state_machine.cur_state == self.IDLE:
             self.state_machine.handle_state_event(('RUN', None))
 
-        #낭떠러지 처리(점프안했을떄)
+        # bbox/feet
         left, bottom, right, top = self.get_bbox()
-        player_feet_y = bottom
+        half_h = (self.frame_h * DRAW_SCALE) / 2
+        feet_y = self.y - half_h
 
+
+        # ---------------------------------
+        # 1) 낭떠러지 체크 (on_ground일 때만)
+        # ---------------------------------
         if self.on_ground:
-            has_ground = self.tile_map.has_ground_below(self.x, player_feet_y)
-            if not has_ground:
+            # 발 바로 아래 1px 지점이 solid가 아니면 낙하 시작
+            if not self.tile_map.solid_down(self.x, feet_y - 1, vy=-1, prev_feet_y=feet_y):
                 self.on_ground = False
-                print("낭떠러지!")
-                # vy는 0에서 시작 → 자연 낙하
+                # 자연 낙하 시작 (vy 그대로 두거나 0으로)
+                # self.vy = 0
 
-        #점프 후 낙하 처리
+        # ---------------------------------
+        # 2) Y축 물리 + 착지 (get_ground_y 제거, solid_at으로 통합)
+        # ---------------------------------
+        prev_y = self.y
+        prev_feet_y = prev_y - half_h
+
         if not self.on_ground:
-            prev_y = self.y
+            self.vy += self.gravity * dt
+            self.y += self.vy * dt
 
-            self.vy += self.gravity * game_framework.frame_time
-            self.y += self.vy * game_framework.frame_time
+            # 머리박기(진짜 땅만 천장으로 작동)
+            if self.vy > 0:
+                head_y = self.y + half_h
+                if self.tile_map.solid_up(self.x, head_y):
+                    # 머리가 들어간 타일의 바닥면으로 스냅
+                    _, tile_y = self.tile_map.world_to_tile(self.x, head_y)
+                    tile_bottom = tile_y * self.tile_map.tile_h
+                    self.y = tile_bottom - half_h
+                    self.vy = 0  # 상승 멈추고 낙하로 전환
 
-            player_feet_y = self.y - (self.frame_h * DRAW_SCALE) / 2
-            ground_y = self.tile_map.get_ground_y(self.x, player_feet_y)
-            prev_feet_y = prev_y - (self.frame_h * DRAW_SCALE) / 2
+            feet_y = self.y - half_h
 
-            print(
-                f"vy={self.vy:.2f}, "
-                f"prev_feet_y={prev_feet_y:.2f}, "
-                f"feet_y={player_feet_y:.2f}, "
-                f"ground_y={ground_y}"
-            )
-            if (
-                    ground_y is not None
-                    and self.vy <= 0
-                    and prev_feet_y >= ground_y >= player_feet_y
-            ):
-                print("착지!")
-                self.y = ground_y + (self.frame_h * DRAW_SCALE) / 2
-                self.vy = 0
-                self.on_ground = True
+            # print(
+            #     f"vy={self.vy:.2f}, "
+            #     f"prev_feet_y={prev_feet_y:.2f}, "
+            #     f"feet_y={player_feet_y:.2f}, "
+            #     f"ground_y={ground_y}"
+            # )
 
-                # 공중 공격 중이면 정리
-                if self.is_attacking:
-                    self.is_attacking = False
-                    self.render_offset_x = 0
+            # 아래로 내려오는 중이고, 이번 프레임에서 solid를 "통과"했으면 착지
+            if self.vy <= 0:
+                # 현재 발 위치가 solid 안쪽이면(=바닥을 뚫고 들어갔으면) 착지 처리
+                if self.tile_map.solid_down(self.x, feet_y, vy=self.vy, prev_feet_y=prev_feet_y):
+                    # 착지 스냅: "현재 feet_y가 속한 타일의 윗면"으로 올려놓기
+                    tile_x, tile_y = self.tile_map.world_to_tile(self.x, feet_y)
+                    tile_top = (tile_y + 1) * self.tile_map.tile_h
 
-                self.state_machine.handle_state_event(('STOP', None))
+                    self.y = tile_top + half_h
+                    self.vy = 0
+                    self.on_ground = True
 
-        # =====================
-        # 1️⃣ 공격 우선 처리
-        # =====================
+                    # 공중 공격 중이면 정리
+                    if self.is_attacking:
+                        self.is_attacking = False
+                        self.render_offset_x = 0
+
+                    self.state_machine.handle_state_event(('STOP', None))
+
+
+        # ---------------------------------
+        # 3) X축 이동 + 충돌 (is_wall 제거, solid_at으로 통합)
+        # ---------------------------------
+        dx = self.xdir * self.speed * dt
+        if dx != 0:
+            left, bottom, right, top = self.get_bbox()
+            check_x = right + dx if dx > 0 else left + dx
+
+            blocked = False
+
+            # 샘플링 3점(발/몸통/머리)
+            for y in (bottom + 4, self.y, top - 4):
+                if self.tile_map.solid_side(check_x, y):
+                    blocked = True
+                    break
+
+            if not blocked:
+                self.x += dx
+
+        # ---------------------------------
+        # 4) 공격 처리(기존 유지)
+        # ---------------------------------
         if self.attack_pressed and not self.is_attacking:
             if self.state_machine.cur_state == self.JUMP:
                 # 🔥 공중 공격: 상태 전이 ❌
@@ -499,8 +539,6 @@ class Player:
                 self.state_machine.handle_state_event(('ATTACK', None))
 
             self.attack_pressed = False
-
-            #self.xdir = 0  # 즉시 이동 차단
 
         prev_xdir = self.xdir
 
@@ -518,7 +556,10 @@ class Player:
         #         self.xdir = 0
         #
         #     self.x += self.xdir * self.speed * game_framework.frame_time
-        # 입력으로 원하는 방향 계산
+
+        # ---------------------------------
+        # 5) Key State → xdir 계산(기존 유지)
+        # ---------------------------------
         if self.left_pressed and not self.right_pressed:
             desired_xdir = -1
         elif self.right_pressed and not self.left_pressed:
@@ -531,7 +572,7 @@ class Player:
             self.xdir = desired_xdir
 
         # 이동은 항상 적용
-        self.x += self.xdir * self.speed * game_framework.frame_time
+        #self.x += self.xdir * self.speed * game_framework.frame_time
 
         # =====================
         # 상태 전이
@@ -553,8 +594,9 @@ class Player:
 
 
     def draw(self):
-        self.state_machine.draw()
 
+        self.state_machine.draw()
+        draw_rectangle(*self.get_bbox())
     # =====================
     # 프레임 렌더링
     # =====================
