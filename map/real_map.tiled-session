@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "lils.json",
+    "activeFile": "",
     "expandedProjectPaths": [
     ],
     "fileStates": {
@@ -14,35 +14,45 @@
             "scale": 0.75,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 728,
-                "y": 428
+                "x": 752,
+                "y": 455.33333333333326
             }
         },
         "lils.json#outside_tileset": {
             "scaleInDock": 1
         },
         "real_map.json": {
-            "scale": 1.5,
-            "selectedLayer": 1,
+            "scale": 2,
+            "selectedLayer": 0,
             "viewCenter": {
-                "x": 92.66666666666669,
-                "y": 736.6666666666665
+                "x": 981.75,
+                "y": 570
             }
         },
+        "real_map.json#caves_tileset": {
+            "scaleInDock": 1
+        },
         "real_map.json#outside_tileset": {
-            "scaleInDock": 1.5
+            "scaleInDock": 1.5,
+            "scaleInEditor": 1
+        },
+        "real_map.json#tileset": {
+            "scaleInDock": 2,
+            "scaleInEditor": 1
         }
     },
-    "last.imagePath": "C:/Users/titan/Desktop/Echoes-Beneath-the-Canopy/map/FREE UPDATE V1/FREE UPDATE V1/TILESETS",
+    "last.imagePath": "C:/Users/titan/Desktop/Echoes-Beneath-the-Canopy/map/stringstar fields",
     "map.height": 57,
     "map.lastUsedFormat": "json",
     "map.tileHeight": 16,
     "map.tileWidth": 16,
     "map.width": 88,
     "openFiles": [
-        "lils.json"
+        "lils.json",
+        "real_map.json"
     ],
     "project": "real_map.tiled-project",
+    "property.type": "bool",
     "recentFiles": [
         "lils.json",
         "real_map.json"
